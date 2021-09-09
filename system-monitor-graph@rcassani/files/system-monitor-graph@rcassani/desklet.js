@@ -41,18 +41,20 @@ MyDesklet.prototype = {
         this.settings.bindProperty(Settings.BindingDirection.IN, "gpu-id", "gpu_id", this.on_setting_changed);
         this.settings.bindProperty(Settings.BindingDirection.IN, "refresh-interval", "refresh_interval", this.on_setting_changed);
         this.settings.bindProperty(Settings.BindingDirection.IN, "duration", "duration", this.on_setting_changed);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "background-color", "background_color", this.on_setting_changed);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "h-midlines", "h_midlines", this.on_setting_changed);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "v-midlines", "v_midlines", this.on_setting_changed);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "scale-size", "scale_size", this.on_setting_changed);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "midline-color", "midline_color", this.on_setting_changed);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "text-color", "text_color", this.on_setting_changed);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "line-color-cpu", "line_color_cpu", this.on_setting_changed);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "line-color-ram", "line_color_ram", this.on_setting_changed);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "line-color-hdd", "line_color_hdd", this.on_setting_changed);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "line-color-gpu", "line_color_gpu", this.on_setting_changed);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "background-color", "background_color", this.on_cosmetic_setting_changed);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "h-midlines", "h_midlines", this.on_cosmetic_setting_changed);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "v-midlines", "v_midlines", this.on_cosmetic_setting_changed);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "scale-size", "scale_size", this.on_cosmetic_setting_changed);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "midline-color", "midline_color", this.on_cosmetic_setting_changed);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "text-color", "text_color", this.on_cosmetic_setting_changed);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "line-color-cpu", "line_color_cpu", this.on_cosmetic_setting_changed);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "line-color-ram", "line_color_ram", this.on_cosmetic_setting_changed);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "line-color-hdd", "line_color_hdd", this.on_cosmetic_setting_changed);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "line-color-gpu", "line_color_gpu", this.on_cosmetic_setting_changed);
 
         // initialize desklet GUI
+        this.save_data=false;
+        this.values=null;
         this.setupUI();
     },
 
@@ -85,7 +87,10 @@ MyDesklet.prototype = {
         // values needed in first run
         if (this.first_run){
             this.n_values = Math.floor(this.duration / this.refresh_interval)  + 1;
-            this.values = new Array(this.n_values).fill(0.0);
+            if (this.values==null || !this.save_data) {
+                this.values = new Array(this.n_values).fill(0.0);
+            }
+            this.save_data=false;
             this.cpu_cpu_tot = 0;
             this.cpu_cpu_idl = 0;
             this.hdd_cpu_tot = 0;
@@ -282,6 +287,10 @@ MyDesklet.prototype = {
         this.canvas.set_size(desklet_w, desklet_h);
     },
 
+    on_cosmetic_setting_changed: function() {
+        this.save_data=true;
+        this.on_setting_changed();
+    },
     on_setting_changed: function() {
         // settings changed; instant refresh
         Mainloop.source_remove(this.timeout);
